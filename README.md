@@ -17,7 +17,7 @@ We provide extensive simulation studies to demonstrate when popular centrality m
 We use the Transmission Reduction Intervention Project (TRIP) data for the application study. The study design is detailed at [here](https://www.nature.com/articles/srep38100).
 
 
-We provide the sample data `Data/sample_net.csv`, which has the same data structure (e.g., the same number of nodes and edges) as the TRIP data we analyzed in the manuscript. This data was generated at random and is only meant to be used as an example, not to be used to replicate the results.
+We provide the sample data `Data/sample_net.RData`, which has the same data structure (e.g., the same number of nodes and edges) as the TRIP data we analyzed in the manuscript. This data was generated at random and is only meant to be used as an example, not to be used to replicate the results.
 
 
 ## Code for Reproducibility

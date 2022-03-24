@@ -2,9 +2,11 @@ library(igraph)
 library(parallel)
 library(Matrix)
 library(keyplayer)
+library(gtools)
 ###
+load("Data/sample_net.RData")
 
-# generate a
+# generate (1) homogeneous direct interference
 homo.direct = function(alpha0, alpha1, alpha2, Adj){
   N = nrow(Adj)
   influence.Y = rep(NA, N)  
@@ -17,13 +19,13 @@ homo.direct = function(alpha0, alpha1, alpha2, Adj){
   return(influence.Y)
 }
 
-
+# calculate filtering functions of the given network 
 traffic.array = function(Adj){
   traffic = array(0, dim = c(nrow(Adj), nrow(Adj), nrow(Adj)))
   G = graph.adjacency(Adj)
   for(i in 1:nrow(Adj)){
     for(k in 1:nrow(Adj)){
-      tmp = all_shortest_paths(G, from = k, to = i, mode = "all")
+      tmp = get.all.shortest.paths(G, from = k, to = i)
       tmp2 = c(); if(length(tmp$res) > 0){
         for(jj in 1:length(tmp$res)){
           tmp2 = c(tmp2, as.numeric(tmp$res[[jj]]))
@@ -38,23 +40,22 @@ traffic.array = function(Adj){
   return(traffic)
 }
 
-
+# generate (2) traffic-dependent process
 traffic.model = function(alpha0, alpha1, alpha2, traffic){
   N = nrow(traffic)
   influence.Y = rep(NA, N) 
-  error = rnorm(N, 0, 0.0)
   for(j in 1:N){
     treat = rep(0, N); treat[j] = 1; prop = c()
     for(i in 1:N){
-      prop[i] = plogis(alpha0 + alpha1*treat[i] + alpha2*sum(as.numeric(traffic[i,,] %*% treat)[-i]) + error[i])
+      prop[i] = plogis(alpha0 + alpha1*treat[i] + alpha2*sum(as.numeric(traffic[i,,] %*% treat)[-i]))
     }
     Y = prop
     influence.Y[j] = mean(Y) 
   }
-  return(influence.Y =  rowMeans(prop))
+  return(influence.Y)
 }
 
-
+# generate (3) homogeneous diffusion process
 diff.randomwalk = function(p, alpha0, alpha1, alpha2, time, Adj){
   # Adj : adjacency matrix
   # p: probability of adoption
@@ -64,71 +65,69 @@ diff.randomwalk = function(p, alpha0, alpha1, alpha2, time, Adj){
   # time : time spent under random walk
   N = nrow(Adj); out = matrix(0, N, time+1); influence.Y = rep(NA, N)
   
-  ### define a diffusion process
-  #for(i in 1:N){
-  #  treat = rep(0, N); treat[i] = 1
-  #  out[,1] = rep(alpha0, N)
-  #  propmat = p*Adj; 
-  #  out[,2] = alpha2*propmat[i, ] + alpha1*out[, 1] 
-  #  for(t in 3:(time+1)){
-  #    propmat = propmat + propmat %*% (p * Adj)
-  #    out[,t] = alpha2*propmat[i,] + alpha1*out[, t-1] 
-  #  }
-  #  influence.Y[i] = mean(out[,t])
-  #}
-  
   for(i in 1:N){
     treat = rep(0, N); treat[i] = 1
     out[,1] = rep(alpha0, N)
     propmat = p*Adj; 
-    out[,2] = alpha2*propmat[i, ] #+ alpha1*out[, 1] 
+    out[,2] = alpha2*propmat[i, ] 
     for(t in 3:(time+1)){
       propmat = propmat + propmat %*% (p * Adj)
-      out[,t] = alpha2*propmat[i,] #+ alpha1*out[, t-1] 
+      out[,t] = alpha2*propmat[i,]  
     }
     influence.Y[i] = mean(out[,t])
   }
-  
   return(influence.Y)
 }
 
 
 n.rep = 500
-#homo.direct.result = traffic.model.result = diffusion.model.result = matrix(NA, n.rep, 217)
+homo.direct.result = traffic.model.result = diffusion.model.result = matrix(NA, n.rep, 277)
 homo.direct.result.mat = traffic.model.result.mat = diffusion.model.result.mat = matrix(NA, n.rep, 4)
-
-
+centrality= list()
 for(r in 1:n.rep){
-  print(r)
   set.seed(r)
-  #G = erdos.renyi.game(217, 0.05, type = "gnp")
-  G = sample_sbm(217, pref.matrix = cbind(c(0.1, 0.01), c(0.01, 0.1)), block.sizes = c(100, 117), 
-                 directed = FALSE, loops = FALSE)
-  #plot(G, vertex.label= NA, edge.arrow.size=0.02, vertex.size = 0.5, xlab = "Random Network: G(217,363) model")
+  print(r)
+  G = net0
+  edges = as.matrix(as_edgelist(G))
+  all.edges = permutations(n=217, 2)
+  ind = sample(nrow(edges), round(nrow(edges)*0.2), replace = FALSE)
+  ind2 = sample(nrow(all.edges), round(nrow(edges)*0.2), replace = FALSE)
+  
+  G =  delete_edges(G, edges = edges[ind,])
+  G =  add_edges(G, edges = all.edges[ind2,] )
   Adj = as.matrix(get.adjacency(G))
   traffic = traffic.array(Adj)
   N = nrow(Adj)
   
-  homo.direct.result = homo.direct(0.1, 0.2, 0.3, Adj)
-  traffic.model.result = traffic.model(-0.5, 1, 0.5, traffic)
-  diffusion.model.result = diff.randomwalk(p = 0.3, alpha0 = 0.1, alpha1 = 0.4, alpha2 = 0.3, time = 5, Adj)
+  homo.direct.result[r,] = homo.direct(0.1, 0.2, 0.3, Adj)
+  traffic.model.result[r,] = traffic.model(-0.5, 1, 0.5, traffic)
+  diffusion.model.result[r,] = diff.randomwalk(p = 0.3, alpha0 = 0.1, alpha1 = 0.4, alpha2 = 0.3, time = 5, Adj)
   
   ## results
   diffusion.measure = diffusion(Adj*0.3,  T = 5)
   #diffusion.measure = sample(1:N, N, replace = FALSE)
   random.measure = sample(1:N, N, replace = FALSE)
-  homo.direct.result.mat[r,] = c(cor(homo.direct.result, rowSums(Adj), method = "spearman"),
-                                 cor(homo.direct.result, betweenness(G), method = "spearman"),
-                                 cor(homo.direct.result,  diffusion.measure, method = "spearman"),
-                                 cor(homo.direct.result,  random.measure, method = "spearman"))
-  traffic.model.result.mat[r,] = c(cor(traffic.model.result, rowSums(Adj), method = "spearman"),
-                                   cor(traffic.model.result, betweenness(G), method = "spearman"),
-                                   cor(traffic.model.result, diffusion.measure, method = "spearman"),
-                                   cor(traffic.model.result,  random.measure, method = "spearman"))
-  diffusion.model.result.mat[r,] = c(cor(diffusion.model.result, rowSums(Adj), method = "spearman"),
-                                     cor(diffusion.model.result, betweenness(G), method = "spearman"),
-                                     cor(diffusion.model.result, diffusion.measure, method = "spearman"),
-                                     cor(diffusion.model.result, random.measure, method = "spearman"))
+  
+  centrality[[r]] = list(rowSums(Adj), betweenness(G), diffusion.measure, random.measure)
+  
+  homo.direct.result.mat[r,] = c(cor(homo.direct.result[r,], rowSums(Adj), method = "spearman"),
+                                 cor(homo.direct.result[r,], betweenness(G), method = "spearman"),
+                                 cor(homo.direct.result[r,],  diffusion.measure, method = "spearman"),
+                                 cor(homo.direct.result[r,],  random.measure, method = "spearman"))
+  traffic.model.result.mat[r,] = c(cor(traffic.model.result[r,], rowSums(Adj), method = "spearman"),
+                                   cor(traffic.model.result[r,], betweenness(G), method = "spearman"),
+                                   cor(traffic.model.result[r,], diffusion.measure, method = "spearman"),
+                                   cor(traffic.model.result[r,],  random.measure, method = "spearman"))
+  diffusion.model.result.mat[r,] = c(cor(diffusion.model.result[r,], rowSums(Adj), method = "spearman"),
+                                     cor(diffusion.model.result[r,], betweenness(G), method = "spearman"),
+                                     cor(diffusion.model.result[r,], diffusion.measure, method = "spearman"),
+                                     cor(diffusion.model.result[r,], random.measure, method = "spearman"))
 }
+
+## add centrality
+
+save(homo.direct.result.mat, file = "data/homo.direct.result.mat.RData")
+save(traffic.model.result.mat, file = "data/traffic.model.result.mat.RData")
+save(diffusion.model.result.mat, file = "data/diffusion.model.result.mat.RData")
 
 
