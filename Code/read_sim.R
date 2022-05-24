@@ -21,20 +21,15 @@ topkl.concordance = function(k, l, centrality, tau){
   return(concordance)
 }
 ##################  
-load("Data/diffusion.model.result.RData")
-load("Data/centrality.result.RData")
-#load("Data/traffic.model.result.mat.RData")
-nr = length(centrality); n = 277
+nr = 500; n = 277
 outdegree = btwn.centrality = closeout.centrality = 
   diff.centrality = random = proportion = matrix(0, nr, n)
-proportion = matrix(0, nr, n)
-for(r in 1:nr){
-  outdegree[r,] = centrality[[r]][[1]]
-  btwn.centrality[r,] = centrality[[r]][[2]]
-  diff.centrality[r,] = centrality[[r]][[3]]
-  random[r,] = centrality[[r]][[4]]
-  proportion[r,] = diffusion.model.result[r,]
-}
+
+# outdegree: nr x n matrix of degree centrality measures for n subjects from nr replicates
+# btwn.centrality: nr x n matrix of betweenness centrality measures for n subjects from nr replicates 
+# diff.centrality: nr x n matrix of diffusion centrality measures for n subjects from nr replicates 
+# random: nr x n matrix of random selection for n subjects from nr replicates 
+# proportion : nr x n matrix of causal influence measures for n subjects from nr replicates 
 
 result.spearman = matrix(0, nr, 4)
 for(r in 1:nr){
@@ -66,7 +61,6 @@ for(k in 1:277){ print(k)
   }
 }
 
-#diag(percentage.table) = rep(NA, nrow(percentage.table))
 percentage.table1 = percentage.table1[seq(nrow(percentage.table1), 1, -1),]
 percentage.table2 = percentage.table2[seq(nrow(percentage.table2), 1, -1),]
 percentage.table3 = percentage.table3[seq(nrow(percentage.table3), 1, -1),]
