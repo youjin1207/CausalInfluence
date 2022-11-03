@@ -404,7 +404,7 @@ for the application study. The study design is detailed at <a href="https://www.
 available on request from Dr. Georgios Nikolopoulos (<a href="mailto:nikolopoulos.georgios@ucy.ac.cy" class="email">nikolopoulos.georgios@ucy.ac.cy</a>).</p>
 <p>We provide the sample data <code>Data/sample_net.RData</code>, which
 has the same data structure (e.g., the same number of nodes (277) and
-edges (829)) as the TRIP data we analyzed in the manuscript. This data
+edges (542)) as the TRIP data we analyzed in the manuscript. This data
 was generated at random and is only meant to be used as an example, not
 to be used to replicate the results.</p>
 </div>
@@ -421,12 +421,13 @@ and diffusion centrality and compare them to our influence measure <span class="
 from <code>sim.R</code> and creates the tables and figures that
 demonstrate the congruence of each centrality to the causal measure of
 influence. This code can be used to reproduce Table 2 and Figure 3 in
-the main manuscript.</p></li>
+the main manuscript and Figures S2 and S3 in the Supporting
+Information.</p></li>
 <li><p><code>sim_multi.R</code> This file explores the difference
 between identifying a single most influential subjects and multiple
 influential subjects with <span class="math inline">\(N=10\)</span>
 nodes. The result is presented in the Supporting Information. This code
-can be used to reproduce Figure S2 and Tables S1, S2, and S3 in the
+can be used to reproduce Figure S4 and Tables S1, S2, and S3 in the
 Supporting Information.</p></li>
 <li><p><code>sim_missing.R</code> This <code>R</code> file runs the same
 simulation as in <code>sim.R</code> with random missing edges.The
@@ -436,17 +437,19 @@ Information.</p></li>
 <li><p><code>sim_sensitivity.R</code> This <code>R</code> file runs the
 simulation with unit-varying <span class="math inline">\(\alpha_{i}\)</span> and <span class="math inline">\(\beta_{ij}\)</span> and random errors <span class="math inline">\(\epsilon_{i} \overset{i.i.d}{\sim} N(0,
 \sigma^{2})\)</span> from the following structural model (Equation (3)
-in the main manuscript) <span class="math display">\[\begin{eqnarray}
-Y_{i}(\mathbf{a}_{\{k\}}) = \delta_{i} + \alpha_{i} I(a_{i} = a_{k}) +
-\sum_{j=1, j \neq i}^{N} \beta_{ji} I(a_{j} = a_{k}) + \epsilon_{i}, ~ k
-\in \{1,2,\ldots, N\},
-\end{eqnarray}\]</span> This code can be used to reproduce Tables S5,
-S6, and S7 in the Supporting Information.</p></li>
-<li><p><code>read_TRIP.R</code> This <code>R</code> file is used to
-analyze the TRIP data, calculating the descriptive statistics and the
-centrality measures. For the purpose of illustration, we use
+in the main manuscript)</p></li>
+</ul>
+<p><span class="math display">\[Y_{i}(\mathbf{a}_{\{k\}}) = \delta_{i} +
+\alpha_{i} I(a_{i} = a_{k}) + \sum_{j=1, j \neq i}^{N} \beta_{ji}
+I(a_{j} = a_{k}) + \epsilon_{i}, ~ k \in \{1,2,\ldots, N\}\]</span></p>
+<p>This code can be used to reproduce Tables S6, S7, and S8 in the
+Supporting Information.</p>
+<ul>
+<li><code>read_TRIP.R</code> This <code>R</code> file is used to analyze
+the TRIP data, calculating the descriptive statistics and the centrality
+measures. For the purpose of illustration, we use
 <code>Data/sample_net.RData</code>. This code can be used to reproduce
-Figures 1 and 4 and Table 3 based on the pseudo data.</p></li>
+Figures 1 and 4 and Table 3 based on the pseudo data.</li>
 </ul>
 </div>
 </div>

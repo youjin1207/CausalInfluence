@@ -22,15 +22,18 @@ We provide the sample data `Data/sample_net.RData`, which has the same data stru
 
 ## Code for Reproducibility
 
+* `aux_functions.R`
+This file contains auxiliary functions to generate different diffusion processes.
+
 * `sim.R`  
 This `R` file generates the main simulation study in Section 5. We consider three data generating models: (i) homogeneous direct interference, (ii) traffic-dependent process, and (iii) homogeneous diffusion process. For each model, we calculate out-degree, betweenness, and diffusion centrality and compare them to our influence measure $\tau$. 
 
 * `read_sim.R`
-This file reads the simulation results from `sim.R` and creates the tables and figures that demonstrate the congruence of each centrality to the causal measure of influence. This code can be used to reproduce Table 2 and Figure 3 in the main manuscript.
+This file reads the simulation results from `sim.R` and creates the tables and figures that demonstrate the congruence of each centrality to the causal measure of influence. This code can be used to reproduce Table 2 and Figure 3 in the main manuscript and Figures S2 and S3 in the Supporting Information.
 
 
 * `sim_multi.R` 
-This file explores the difference between identifying a single most influential subjects and multiple influential subjects with $N=10$ nodes. The result is presented in the Supporting Information. This code can be used to reproduce Figure S2 and Tables S1, S2, and S3 in the Supporting Information. 
+This file explores the difference between identifying a single most influential subjects and multiple influential subjects with $N=10$ nodes. The result is presented in the Supporting Information. This code can be used to reproduce Figure S4 and Tables S1, S2, and S3 in the Supporting Information. 
 
 
 * `sim_missing.R`
@@ -39,10 +42,10 @@ This `R` file runs the same simulation as in `sim.R` with random missing edges.T
 
 * `sim_sensitivity.R`
 This `R` file runs the simulation with unit-varying $\alpha_{i}$ and $\beta_{ij}$ and random errors $\epsilon_{i} \overset{i.i.d}{\sim} N(0, \sigma^{2})$ from the following structural model (Equation (3) in the main manuscript) 
-\begin{eqnarray}
-Y_{i}(\mathbf{a}_{\{k\}}) = \delta_{i} + \alpha_{i} I(a_{i} = a_{k}) + \sum_{j=1, j \neq i}^{N} \beta_{ji} I(a_{j} = a_{k}) + \epsilon_{i}, ~ k \in \{1,2,\ldots, N\},
-\end{eqnarray}
-This code can be used to reproduce Tables S5, S6, and S7 in the Supporting Information.
+
+$$Y_{i}(\mathbf{a}_{\{k\}}) = \delta_{i} + \alpha_{i} I(a_{i} = a_{k}) + \sum_{j=1, j \neq i}^{N} \beta_{ji} I(a_{j} = a_{k}) + \epsilon_{i}, ~ k \in \{1,2,\ldots, N\}$$
+
+This code can be used to reproduce Tables S6, S7, and S8 in the Supporting Information.
 
 * `read_TRIP.R`
 This `R` file is used to analyze the TRIP data, calculating the descriptive statistics and the centrality measures. For the purpose of illustration, we use `Data/sample_net.RData`. This code can be used to reproduce Figures 1 and 4 and Table 3 based on the pseudo data. 
